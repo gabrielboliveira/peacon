@@ -1,0 +1,28 @@
+{
+  "name": "beaconpi-tcc",
+  "version": "1.0.0",
+  "description": "Rastreador de beacons com o RPi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/gaboliveira/tcc.git"
+  },
+  "keywords": [
+    "beacon",
+    "raspberry pi",
+    "node.js"
+  ],
+  "author": "Gabriel Oliveira",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/gaboliveira/tcc#readme",
+  "dependencies": {
+    "bleacon": "^0.4.0",
+    "lcd": "^1.1.1",
+    "node-constants": "0.0.2",
+    "numeral": "^1.5.3",
+    "onoff": "^1.0.2"
+  }
+}
