@@ -14,7 +14,7 @@ bpiscreen.write.led(config.BEACONLED, 1);
 
 bpiscreen.write.lcdAt("Oi", 4,0);
 
-var btnTeste = function(err, state){
+var btnTeste = function(){
 	console.log("pressionado");
 	bpiscreen.write.lcd("Botao pressionado");
 }
