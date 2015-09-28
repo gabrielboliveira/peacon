@@ -1,39 +1,124 @@
 var bpiscreen = require('./lib/bpiscreen');
 var config = require('./lib/globals-config');
+var internalIp = require('internal-ip');
+var publicIp = require('public-ip');
+var os = require('os');
+var numeral = require('numeral');
+var exec = require('child_process').exec;
 
-var actualScreen = 1;
+var events = require("events"),
+	displayEvents = new events.EventEmitter();
 
-// ----------------------------------------------------------------
-// CHANGE DISPLAY SCREEN)
-// ----------------------------------------------------------------
-var changeScreen = function(screen) {
-	if(screen < 1) screen = 3;
-	if(screen > 3) screen = 1;
-	bpiscreen.write.lcd("Tela " + screen);
-	bpiscreen.write.led(config.INTERFACELED1, Number(screen == 1));
-	bpiscreen.write.led(config.INTERFACELED2, Number(screen == 2));
-	bpiscreen.write.led(config.INTERFACELED3, Number(screen == 3));
-	actualScreen = screen;
-}
-// ----------------------------------------------------------------
-//
-// ----------------------------------------------------------------
+var actualScreenX = 0, actualScreenY = 0;
+var screenIntervalId;
 
 // ----------------------------------------------------------------
-// BUTTONS CLICK
+// GET SCREEN TEXT
+// ----------------------------------------------------------------
+// this array will return the text from each of screen position
+var getScreenText = [
+	// returns
+	[
+		function() { }
+	],
+	[
+		function() { }
+	],
+	// this screen will display the RPi statistics, such as load average,
+	// CPU temp, public and internal IP address
+	[
+		// returns the load average
+		function() {
+			screenIntervalId = setInterval(function() {
+				displayEvents.emit('updated', "Load average\n" +
+					numeral(os.loadavg()[0]).format('0.00') + " " +
+					numeral(os.loadavg()[1]).format('0.00') + " " +
+					numeral(os.loadavg()[2]).format('0.00'));
+			}, 1000);
+		},
+		function() {
+			screenIntervalId = setInterval(function() {
+				exec("cat /sys/class/thermal/thermal_zone0/temp", function (error, stdout, stderr) {
+					if (error !== null) {
+						console.log('exec error: ' + error);
+					} else {
+						// gets cpu temp and sends to callback function
+						var temp = parseFloat(stdout)/1000;
+						displayEvents.emit('updated', "CPU Temp\n" + temp);
+					}
+				});
+			}, 1000);
+		},
+		function() {
+			displayEvents.emit('updated', "IP Privado\n" + internalIp());
+		},
+		function() {
+			publicIp(function (err, ip) {
+				displayEvents.emit('updated', "IP Publico\n" + ip);
+			});
+		}
+	]
+];
+
+displayEvents.on("updated", function(message) {
+	bpiscreen.write.lcd(message);
+});
+// ----------------------------------------------------------------
+// END GET SCREEN TEXT
+// ----------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------
+// CHANGE DISPLAY SCREEN
+// ----------------------------------------------------------------
+displayEvents.on("changed", function(message) {
+	clearInterval(screenIntervalId);
+	if(actualScreenX < 0)
+	{
+		actualScreenX = getScreenText.length - 1;
+	} 
+	else if(actualScreenX > getScreenText.length - 1)
+	{
+		actualScreenX = 0;
+	}
+	if(actualScreenY < 0)
+	{
+		actualScreenY = getScreenText[actualScreenX].length - 1;
+	}
+	else if(actualScreenY > getScreenText[actualScreenX].length - 1)
+	{
+		actualScreenY = 0;
+	}
+	getScreenText[screenX][screenY]();
+});
+// ----------------------------------------------------------------
+// END CHANGE DISPLAY SCREEN
+// ----------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------
+// BUTTON CLICK CALLBACK
 // ----------------------------------------------------------------
 var leftBtnClick = function(){
-	console.log("pressionado left btn");
-	changeScreen(actualScreen-1);
+	actualScreenX--;
+	displayEvents.emit('changed');
 }
 var middleBtnClick = function(){
-	console.log("pressionado");
-	bpiscreen.write.lcd("Botao\npressionado Middle");
+	actualScreenY++;
+	displayEvents.emit('changed');
 }
 var rightBtnClick = function(){
-	console.log("pressionado");
-	changeScreen(actualScreen+1);
+	actualScreenX++;
+	displayEvents.emit('changed');
 }
+// ----------------------------------------------------------------
+// END BUTTON CLICK CALLBACK
+// ----------------------------------------------------------------
+
+
+
 // ----------------------------------------------------------------
 // STARTING SCRIPTS
 // ----------------------------------------------------------------
@@ -51,8 +136,11 @@ var start = function() {
 	bpiscreen.watch.button(config.LEFTBTN, leftBtnClick);
 	bpiscreen.watch.button(config.MIDDLEBTN, middleBtnClick);
 	bpiscreen.watch.button(config.RIGHTBTN, rightBtnClick);
-	changeScreen(actualScreen);
+	
+	displayEvents.emit('changed');
 }
 
 start();
-
+// ----------------------------------------------------------------
+// END STARTING SCRIPTS
+// ----------------------------------------------------------------
