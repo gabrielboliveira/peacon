@@ -9,34 +9,47 @@ var exec = require('child_process').exec;
 var events = require("events"),
 	displayEvents = new events.EventEmitter();
 
-var actualScreenX = 0, actualScreenY = 0;
+var actualScreenX = 1, actualScreenY = 1;
 var screenIntervalId;
 
 // ----------------------------------------------------------------
 // GET SCREEN TEXT
 // ----------------------------------------------------------------
 // this array will return the text from each of screen position
-var getScreenText = [
-	// returns
-	[
-		function() { }
-	],
-	[
-		function() { }
-	],
-	// this screen will display the RPi statistics, such as load average,
-	// CPU temp, public and internal IP address
-	[
-		// returns the load average
-		function() {
+
+// first screen, show simple message
+displayEvents.on("screenUpdated1", function() {
+	displayEvents.emit('updated', "Aguardando\n beacons...");
+});
+
+// this screen will show the last seen beacons
+displayEvents.on("screenUpdated2", function() {
+	// TODO list last beacons
+	displayEvents.emit('updated', "Ultimos beacons");
+	
+});
+
+// this screen will display the RPi statistics, such as load average,
+// CPU temp, public and internal IP address
+displayEvents.on("screenUpdated3", function() {
+	if(actualScreenY < 1){
+		actualScreenY = 4;
+	} 
+	else if(actualScreenY > 4) {
+		actualScreenY = 1;
+	}
+	
+	switch(actualScreenY)
+	{
+		case 1:
 			screenIntervalId = setInterval(function() {
 				displayEvents.emit('updated', "Load average\n" +
 					numeral(os.loadavg()[0]).format('0.00') + " " +
 					numeral(os.loadavg()[1]).format('0.00') + " " +
 					numeral(os.loadavg()[2]).format('0.00'));
 			}, 1000);
-		},
-		function() {
+			break;
+		case 2:
 			screenIntervalId = setInterval(function() {
 				exec("cat /sys/class/thermal/thermal_zone0/temp", function (error, stdout, stderr) {
 					if (error !== null) {
@@ -48,17 +61,16 @@ var getScreenText = [
 					}
 				});
 			}, 1000);
-		},
-		function() {
+		case 3:
 			displayEvents.emit('updated', "IP Privado\n" + internalIp());
-		},
-		function() {
+			break;
+		case 4:
 			publicIp(function (err, ip) {
 				displayEvents.emit('updated', "IP Publico\n" + ip);
 			});
-		}
-	]
-];
+			break;
+	}
+});
 
 displayEvents.on("updated", function(message) {
 	bpiscreen.write.lcd(message);
@@ -74,23 +86,15 @@ displayEvents.on("updated", function(message) {
 // ----------------------------------------------------------------
 displayEvents.on("changed", function(message) {
 	clearInterval(screenIntervalId);
-	if(actualScreenX < 0)
+	if(actualScreenX < 1)
 	{
-		actualScreenX = getScreenText.length - 1;
+		actualScreenX = config.TOTALSCREENS;
 	} 
-	else if(actualScreenX > getScreenText.length - 1)
+	else if(actualScreenX > config.TOTALSCREENS)
 	{
-		actualScreenX = 0;
+		actualScreenX = 1;
 	}
-	if(actualScreenY < 0)
-	{
-		actualScreenY = getScreenText[actualScreenX].length - 1;
-	}
-	else if(actualScreenY > getScreenText[actualScreenX].length - 1)
-	{
-		actualScreenY = 0;
-	}
-	getScreenText[screenX][screenY]();
+	displayEvents.emit('screenUpdated' + actualScreenX);
 });
 // ----------------------------------------------------------------
 // END CHANGE DISPLAY SCREEN
@@ -102,6 +106,7 @@ displayEvents.on("changed", function(message) {
 // BUTTON CLICK CALLBACK
 // ----------------------------------------------------------------
 var leftBtnClick = function(){
+	actualScreenY = 0;
 	actualScreenX--;
 	displayEvents.emit('changed');
 }
@@ -110,6 +115,7 @@ var middleBtnClick = function(){
 	displayEvents.emit('changed');
 }
 var rightBtnClick = function(){
+	actualScreenY = 0;
 	actualScreenX++;
 	displayEvents.emit('changed');
 }
