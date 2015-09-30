@@ -19,13 +19,13 @@ var screenIntervalId;
 
 // first screen, show simple message
 displayEvents.on("screenUpdated1", function() {
-	displayEvents.emit('updated', "Aguardando\n beacons...");
+	updateDisplayMsg("Aguardando\n beacons...");
 });
 
 // this screen will show the last seen beacons
 displayEvents.on("screenUpdated2", function() {
 	// TODO list last beacons
-	displayEvents.emit('updated', "Ultimos beacons");
+	updateDisplayMsg("Ultimos beacons");
 	
 });
 
@@ -43,7 +43,7 @@ displayEvents.on("screenUpdated3", function() {
 	{
 		case 1:
 			screenIntervalId = setInterval(function() {
-				displayEvents.emit('updated', "Load average\n" +
+				updateDisplayMsg("Load average\n" +
 					numeral(os.loadavg()[0]).format('0.00') + " " +
 					numeral(os.loadavg()[1]).format('0.00') + " " +
 					numeral(os.loadavg()[2]).format('0.00'));
@@ -62,19 +62,22 @@ displayEvents.on("screenUpdated3", function() {
 				});
 			}, 1000);
 		case 3:
-			displayEvents.emit('updated', "IP Privado\n" + internalIp());
+			//displayEvents.emit('updated', "IP Privado\n" + internalIp());
+			updateDisplayMsg("IP Privado\n" + internalIp());
 			break;
 		case 4:
 			publicIp(function (err, ip) {
 				displayEvents.emit('updated', "IP Publico\n" + ip);
+				updateDisplayMsg("IP Publico\n" + ip);
 			});
 			break;
 	}
 });
 
-displayEvents.on("updated", function(message) {
+var updateDisplayMsg = function(message) {
+//displayEvents.on("updated", function(message) {
 	bpiscreen.write.lcd(message);
-});
+};
 // ----------------------------------------------------------------
 // END GET SCREEN TEXT
 // ----------------------------------------------------------------
