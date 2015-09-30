@@ -17,62 +17,63 @@ var screenIntervalId;
 // ----------------------------------------------------------------
 // this array will return the text from each of screen position
 
-// first screen, show simple message
-displayEvents.on("screenUpdated1", function() {
-	updateDisplayMsg("Aguardando\n beacons...");
-});
-
-// this screen will show the last seen beacons
-displayEvents.on("screenUpdated2", function() {
-	// TODO list last beacons
-	updateDisplayMsg("Ultimos beacons");
-	
-});
-
-// this screen will display the RPi statistics, such as load average,
-// CPU temp, public and internal IP address
-displayEvents.on("screenUpdated3", function() {
-	if(actualScreenY < 1){
-		actualScreenY = 4;
-	} 
-	else if(actualScreenY > 4) {
-		actualScreenY = 1;
-	}
-	
-	switch(actualScreenY)
-	{
-		case 1:
-			screenIntervalId = setInterval(function() {
-				updateDisplayMsg("Load average\n" +
-					numeral(os.loadavg()[0]).format('0.00') + " " +
-					numeral(os.loadavg()[1]).format('0.00') + " " +
-					numeral(os.loadavg()[2]).format('0.00'));
-			}, 1000);
-			break;
-		case 2:
-			screenIntervalId = setInterval(function() {
-				exec("cat /sys/class/thermal/thermal_zone0/temp", function (error, stdout, stderr) {
-					if (error !== null) {
-						console.log('exec error: ' + error);
-					} else {
-						// gets cpu temp and sends to callback function
-						var temp = parseFloat(stdout)/1000;
-						displayEvents.emit('updated', "CPU Temp\n" + temp);
-					}
+var updateScreen = [
+	[
+		// first screen, show simple message
+		function() {
+			updateDisplayMsg("Aguardando\n beacons...");
+		}
+	],
+	[
+		// this screen will show the last seen beacons
+		function() {
+			// TODO list last beacons
+			updateDisplayMsg("Ultimos beacons");
+			
+		}
+	],
+	[
+		// this screen will display the RPi statistics, such as load average,
+		// CPU temp, public and internal IP address
+		function() {
+			updateLoadAverage();
+			screenIntervalId = setInterval(updateLoadAverage, 1000);
+		},
+		function() {
+			updateSysTemp();
+			screenIntervalId = setInterval(updateSysTemp, 1000);
+		},
+		function() {
+				//displayEvents.emit('updated', "IP Privado\n" + internalIp());
+				updateDisplayMsg("IP Privado\n" + internalIp());
+		},
+		function() {
+				publicIp(function (err, ip) {
+					//displayEvents.emit('updated', "IP Publico\n" + ip);
+					updateDisplayMsg("IP Publico\n" + ip);
 				});
-			}, 1000);
-		case 3:
-			//displayEvents.emit('updated', "IP Privado\n" + internalIp());
-			updateDisplayMsg("IP Privado\n" + internalIp());
-			break;
-		case 4:
-			publicIp(function (err, ip) {
-				displayEvents.emit('updated', "IP Publico\n" + ip);
-				updateDisplayMsg("IP Publico\n" + ip);
-			});
-			break;
-	}
-});
+		}
+	]
+];
+
+var updateLoadAverage = function() {
+	updateDisplayMsg("Load average\n" +
+		numeral(os.loadavg()[0]).format('0.00') + " " +
+		numeral(os.loadavg()[1]).format('0.00') + " " +
+		numeral(os.loadavg()[2]).format('0.00'));
+}
+
+var updateSysTemp = function() {
+	exec("cat /sys/class/thermal/thermal_zone0/temp", function (error, stdout, stderr) {
+		if (error !== null) {
+			console.log('exec error: ' + error);
+		} else {
+			// gets cpu temp and sends to callback function
+			var temp = parseFloat(stdout)/1000;
+			updateDisplayMsg("CPU Temp\n" + temp);
+		}
+	});
+}
 
 var updateDisplayMsg = function(message) {
 //displayEvents.on("updated", function(message) {
@@ -87,22 +88,50 @@ var updateDisplayMsg = function(message) {
 // ----------------------------------------------------------------
 // CHANGE DISPLAY SCREEN
 // ----------------------------------------------------------------
-displayEvents.on("changed", function(message) {
+var changeScreen = function(opts) {
+	opts = opts || {};
 	clearInterval(screenIntervalId);
 	
-	if(actualScreenX < 1)
-	{
-		actualScreenX = config.TOTALSCREENS;
-	} 
-	else if(actualScreenX > config.TOTALSCREENS)
-	{
-		actualScreenX = 1;
+	var x = opts.screenX || false;
+	var y = opts.screenY || false;
+	var next = opts.next || false;
+	
+	if(x) {
+		if(next)
+			actualScreenX++;
+		else
+			actualScreenX--;
+	} else if(y) {
+		if(next)
+			actualScreenY++;
+		else
+			actualScreenY--;
 	}
+	
+	if(actualScreenX < 0)
+	{
+		actualScreenX = updateScreen.length;
+	} 
+	else if(actualScreenX >= updateScreen.length)
+	{
+		actualScreenX = 0;
+	}
+	if(actualScreenY < 0)
+	{
+		actualScreenY = updateScreen[actualScreenX].length;
+	} 
+	else if(actualScreenY >= updateScreen[actualScreenX].length)
+	{
+		actualScreenY = 0;
+	}
+	
 	bpiscreen.write.led(config.INTERFACELED1, Number(actualScreenX == 1));
 	bpiscreen.write.led(config.INTERFACELED2, Number(actualScreenX == 2));
 	bpiscreen.write.led(config.INTERFACELED3, Number(actualScreenX == 3));
-	displayEvents.emit('screenUpdated' + actualScreenX);
-});
+		
+	updateScreen[actualScreenX][actualScreenY]();
+	//displayEvents.emit('screenUpdated' + actualScreenX);
+};
 // ----------------------------------------------------------------
 // END CHANGE DISPLAY SCREEN
 // ----------------------------------------------------------------
@@ -113,18 +142,16 @@ displayEvents.on("changed", function(message) {
 // BUTTON CLICK CALLBACK
 // ----------------------------------------------------------------
 var leftBtnClick = function(){
-	actualScreenY = 1;
-	actualScreenX--;
-	displayEvents.emit('changed');
+	//displayEvents.emit('changed');
+	changeScreen({ screenX:true, next:false });
 }
 var middleBtnClick = function(){
-	actualScreenY++;
-	displayEvents.emit('changed');
+	//displayEvents.emit('changed');
+	changeScreen({ screenY:true, next:true });
 }
 var rightBtnClick = function(){
-	actualScreenY = 1;
-	actualScreenX++;
-	displayEvents.emit('changed');
+	//displayEvents.emit('changed');
+	changeScreen({ screenX:true, next:true });
 }
 // ----------------------------------------------------------------
 // END BUTTON CLICK CALLBACK
