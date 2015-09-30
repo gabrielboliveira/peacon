@@ -86,6 +86,7 @@ displayEvents.on("updated", function(message) {
 // ----------------------------------------------------------------
 displayEvents.on("changed", function(message) {
 	clearInterval(screenIntervalId);
+	
 	if(actualScreenX < 1)
 	{
 		actualScreenX = config.TOTALSCREENS;
@@ -94,6 +95,9 @@ displayEvents.on("changed", function(message) {
 	{
 		actualScreenX = 1;
 	}
+	bpiscreen.write.led(config.INTERFACELED1, Number(actualScreenX == 1));
+	bpiscreen.write.led(config.INTERFACELED2, Number(actualScreenX == 2));
+	bpiscreen.write.led(config.INTERFACELED3, Number(actualScreenX == 3));
 	displayEvents.emit('screenUpdated' + actualScreenX);
 });
 // ----------------------------------------------------------------
@@ -106,7 +110,7 @@ displayEvents.on("changed", function(message) {
 // BUTTON CLICK CALLBACK
 // ----------------------------------------------------------------
 var leftBtnClick = function(){
-	actualScreenY = 0;
+	actualScreenY = 1;
 	actualScreenX--;
 	displayEvents.emit('changed');
 }
@@ -115,7 +119,7 @@ var middleBtnClick = function(){
 	displayEvents.emit('changed');
 }
 var rightBtnClick = function(){
-	actualScreenY = 0;
+	actualScreenY = 1;
 	actualScreenX++;
 	displayEvents.emit('changed');
 }
