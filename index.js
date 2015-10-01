@@ -9,7 +9,7 @@ var exec = require('child_process').exec;
 var events = require("events"),
 	displayEvents = new events.EventEmitter();
 
-var actualScreenX = 1, actualScreenY = 1;
+var actualScreenX = 0, actualScreenY = 0;
 var screenIntervalId;
 
 // ----------------------------------------------------------------
@@ -44,14 +44,15 @@ var updateScreen = [
 			screenIntervalId = setInterval(updateSysTemp, 1000);
 		},
 		function() {
-				//displayEvents.emit('updated', "IP Privado\n" + internalIp());
-				updateDisplayMsg("IP Privado\n" + internalIp());
+			//displayEvents.emit('updated', "IP Privado\n" + internalIp());
+			updateDisplayMsg("IP Privado\n" + internalIp());
 		},
 		function() {
-				publicIp(function (err, ip) {
-					//displayEvents.emit('updated', "IP Publico\n" + ip);
-					updateDisplayMsg("IP Publico\n" + ip);
-				});
+			updateDisplayMsg("IP Publico\nCarregando...");
+			publicIp(function (err, ip) {
+				//displayEvents.emit('updated', "IP Publico\n" + ip);
+				updateDisplayMsg("IP Publico\n" + ip);
+			});
 		}
 	]
 ];
@@ -125,9 +126,9 @@ var changeScreen = function(opts) {
 		actualScreenY = 0;
 	}
 	
-	bpiscreen.write.led(config.INTERFACELED1, Number(actualScreenX == 1));
-	bpiscreen.write.led(config.INTERFACELED2, Number(actualScreenX == 2));
-	bpiscreen.write.led(config.INTERFACELED3, Number(actualScreenX == 3));
+	bpiscreen.write.led(config.INTERFACELED1, Number(actualScreenX == 0));
+	bpiscreen.write.led(config.INTERFACELED2, Number(actualScreenX == 1));
+	bpiscreen.write.led(config.INTERFACELED3, Number(actualScreenX == 2));
 		
 	updateScreen[actualScreenX][actualScreenY]();
 	//displayEvents.emit('screenUpdated' + actualScreenX);
@@ -177,7 +178,8 @@ var start = function() {
 	bpiscreen.watch.button(config.MIDDLEBTN, middleBtnClick);
 	bpiscreen.watch.button(config.RIGHTBTN, rightBtnClick);
 	
-	displayEvents.emit('changed');
+	changeScreen();
+	//displayEvents.emit('changed');
 }
 
 start();
