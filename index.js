@@ -105,7 +105,7 @@ var changeScreen = function(opts) {
 		if(next)
 			actualScreenY++;
 		else
-			actualScreenY--;
+			actualScreenX--;
 	}
 	
 	if(actualScreenX < 0)
