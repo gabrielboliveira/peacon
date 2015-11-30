@@ -5,6 +5,7 @@ var publicIp = require('public-ip');
 var os = require('os');
 var numeral = require('numeral');
 var exec = require('child_process').exec;
+var isOnline = require('is-online');
 
 var events = require("events"),
 	displayEvents = new events.EventEmitter();
@@ -16,7 +17,6 @@ var screenIntervalId;
 // GET SCREEN TEXT
 // ----------------------------------------------------------------
 // this array will return the text from each of screen position
-
 var updateScreen = [
 	[
 		// first screen, show simple message
@@ -29,7 +29,6 @@ var updateScreen = [
 		function() {
 			// TODO list last beacons
 			updateDisplayMsg("Ultimos beacons");
-			
 		}
 	],
 	[
@@ -77,7 +76,6 @@ var updateSysTemp = function() {
 }
 
 var updateDisplayMsg = function(message) {
-//displayEvents.on("updated", function(message) {
 	bpiscreen.write.lcd(message);
 };
 // ----------------------------------------------------------------
@@ -161,6 +159,20 @@ var rightBtnClick = function(){
 
 
 // ----------------------------------------------------------------
+// CHECK INTERNET CONNECTIVITY (YELLOW LED)
+// ----------------------------------------------------------------
+var checkInternet = function(){
+	isOnline(function(err, online) {
+		bpiscreen.write.led(config.INTERNETLED, Number(online == true));
+	});
+};
+// ----------------------------------------------------------------
+// END CHECK INTERNET CONNECTIVITY (YELLOW LED)
+// ----------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------
 // STARTING SCRIPTS
 // ----------------------------------------------------------------
 var start = function() {
@@ -180,6 +192,10 @@ var start = function() {
 	
 	changeScreen();
 	//displayEvents.emit('changed');
+	
+	// check internet connectivity every minute
+	checkInternet();
+	setInterval(checkInternet, 60000);
 }
 
 start();
