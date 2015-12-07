@@ -6,6 +6,7 @@ var os = require('os');
 var numeral = require('numeral');
 var exec = require('child_process').exec;
 var isOnline = require('is-online');
+var Bleacon = require('bleacon');
 
 var events = require("events"),
 	displayEvents = new events.EventEmitter();
@@ -171,6 +172,17 @@ var checkInternet = function(){
 // ----------------------------------------------------------------
 
 
+Bleacon.on('discover', function(bleacon) {
+    console.log("Discover");
+    console.log("UUID: " + bleacon.uuid + " " +
+		"Major: " + bleacon.major + " " +
+		"Minor: " + bleacon.minor + " " +
+		"RSSI: " + bleacon.rssi + " " +
+		"Power: " + bleacon.measuredPower);
+		
+	bpiscreen.write.led(config.BEACONLED, 0);
+});
+
 
 // ----------------------------------------------------------------
 // STARTING SCRIPTS
@@ -196,6 +208,8 @@ var start = function() {
 	// check internet connectivity every minute
 	checkInternet();
 	setInterval(checkInternet, 60000);
+	
+	Bleacon.startScanning(); // scan for any bleacons
 }
 
 start();
