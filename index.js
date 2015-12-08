@@ -233,8 +233,11 @@ Bleacon.on('discover', function(bleacon) {
 	
 	if (!findB) {
 		findB = newBeacon()
+		findB.uuid = bleacon.uuid
+		findB.major = bleacon.major
+		findB.minor = bleacon.minor
 		beaconsOnRange.push(findB)
-		console.log("Not found, created and added new")
+		console.log("Not found, created and added a new")
 	}
 	
 	// stops the older timeout
