@@ -217,6 +217,10 @@ var beaconTimeoutCallback = function(beacon) {
 		beaconsOnRange.splice(index, 1)
 	}
 	
+	// TODO - ADD TO DATABASE
+	
+	// TODO - SHOW ON SCREEN
+	
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
 }
 
@@ -230,13 +234,15 @@ Bleacon.on('discover', function(bleacon) {
 	if (!findB) {
 		findB = newBeacon()
 		beaconsOnRange.push(findB)
+		console.log("Not found, created and added new")
 	}
 	
 	// stops the older timeout
 	clearTimeout(findB.funcInterval)
 	
 	findB.funcInterval = setTimeout(function() {
-		 beaconTimeoutCallback(findB)
+		console.log("beaconTimeoutCallback")
+		beaconTimeoutCallback(findB)
 	}, beaconTime)
 	
     /*console.log("UUID: " + bleacon.uuid + " " +
