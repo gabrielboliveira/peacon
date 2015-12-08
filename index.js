@@ -164,55 +164,124 @@ var rightBtnClick = function(){
 // ----------------------------------------------------------------
 var checkInternet = function(){
 	isOnline(function(err, online) {
-		bpiscreen.write.led(config.INTERNETLED, Number(online == true));
-	});
-};
+		bpiscreen.write.led(config.INTERNETLED, Number(online == true))
+	})
+}
 // ----------------------------------------------------------------
 // END CHECK INTERNET CONNECTIVITY (YELLOW LED)
 // ----------------------------------------------------------------
 
 
+
+// ----------------------------------------------------------------
+// BEACON IDENTIFICATION
+// ----------------------------------------------------------------
+
+// save all beacons on range for a limited time
+var beaconsOnRange = [ ]
+
+// time between beacon range in and out - in ms
+var beaconTime = 5000
+
+// find a beacon at the original array
+var findBeaconLocally = function(uuid, major, minor) {
+	var i = 0, len = beaconsOnRange.length
+	for (; i < len; ++i) {
+		if ( beaconsOnRange[i].uuid == uuid &&
+			beaconsOnRange[i].major == major &&
+			beaconsOnRange[i].minor == minor )
+			return beaconsOnRange[i]
+	}
+	return null
+}
+
+// creates a new beacon item to insert on the range array
+var newBeacon = function(){
+	var newB = {
+		"uuid": "",
+		"major": "",
+		"minor": "",
+		"initialDate": Date.now(),
+		"finalDate": "",
+		"funcInterval": ""
+	}
+	return newB
+}
+
+// timeout callback to remove a beacon from the range array
+var beaconTimeoutCallback = function(beacon) {
+	beacon.finalDate = Date.now()
+	
+	var index = beaconsOnRange.indexOf(beacon)
+	if (index > -1) {
+		beaconsOnRange.splice(index, 1)
+	}
+	
+	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
+}
+
+// callback when a beacon is discovered
 Bleacon.on('discover', function(bleacon) {
-    console.log("Discover");
-    console.log("UUID: " + bleacon.uuid + " " +
+	
+	console.log("Bleacon Discover")
+	
+	var findB = findBeaconLocally(bleacon.uuid, bleacon.major, bleacon.minor)
+	
+	if (!findB) {
+		findB = newBeacon()
+		beaconsOnRange.push(findB)
+	}
+	
+	// stops the older timeout
+	clearTimeout(findB.funcInterval)
+	
+	findB.funcInterval = setTimeout(function() {
+		 beaconTimeoutCallback(findB)
+	}, beaconTime)
+	
+    /*console.log("UUID: " + bleacon.uuid + " " +
 		"Major: " + bleacon.major + " " +
 		"Minor: " + bleacon.minor + " " +
 		"RSSI: " + bleacon.rssi + " " +
-		"Power: " + bleacon.measuredPower);
+		"Power: " + bleacon.measuredPower)*/
 		
-	bpiscreen.write.led(config.BEACONLED, 0);
-});
+	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
+})
+// ----------------------------------------------------------------
+// END BEACON IDENTIFICATION
+// ----------------------------------------------------------------
+
 
 
 // ----------------------------------------------------------------
 // STARTING SCRIPTS
 // ----------------------------------------------------------------
 var start = function() {
-	bpiscreen.start();
+	bpiscreen.start()
 
-	bpiscreen.write.led(config.POWERLED, 1);
-	bpiscreen.write.led(config.INTERNETLED, 0);
-	bpiscreen.write.led(config.BEACONLED, 0);
+	bpiscreen.write.led(config.POWERLED, 1)
+	bpiscreen.write.led(config.INTERNETLED, 0)
+	bpiscreen.write.led(config.BEACONLED, 0)
 
-	bpiscreen.write.led(config.INTERFACELED1, 0);
-	bpiscreen.write.led(config.INTERFACELED2, 0);
-	bpiscreen.write.led(config.INTERFACELED3, 0);
+	bpiscreen.write.led(config.INTERFACELED1, 0)
+	bpiscreen.write.led(config.INTERFACELED2, 0)
+	bpiscreen.write.led(config.INTERFACELED3, 0)
 
-	bpiscreen.watch.button(config.LEFTBTN, leftBtnClick);
-	bpiscreen.watch.button(config.MIDDLEBTN, middleBtnClick);
-	bpiscreen.watch.button(config.RIGHTBTN, rightBtnClick);
+	bpiscreen.watch.button(config.LEFTBTN, leftBtnClick)
+	bpiscreen.watch.button(config.MIDDLEBTN, middleBtnClick)
+	bpiscreen.watch.button(config.RIGHTBTN, rightBtnClick)
 	
-	changeScreen();
-	//displayEvents.emit('changed');
+	changeScreen()
+	//displayEvents.emit('changed')
 	
 	// check internet connectivity every minute
-	checkInternet();
-	setInterval(checkInternet, 60000);
+	checkInternet()
+	setInterval(checkInternet, 60000)
 	
-	Bleacon.startScanning(); // scan for any bleacons
+	Bleacon.startScanning() // scan for any bleacons
 }
 
-start();
+start()
 // ----------------------------------------------------------------
 // END STARTING SCRIPTS
 // ----------------------------------------------------------------
