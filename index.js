@@ -220,7 +220,7 @@ var beaconTimeoutCallback = function(beacon) {
 		beaconsOnRange.splice(index, 1)
 	}
 	
-	beacon.total = (beacon.finalDate - beacon.initialDate) / 1000
+	beacon.total = ( (beacon.finalDate - beacon.initialDate) / 1000 ) - beaconTime
 	
 	console.log(beacon)
 	
