@@ -36,10 +36,12 @@ var updateScreen = [
 		// this screen will display the RPi statistics, such as load average,
 		// CPU temp, public and internal IP address
 		function() {
+			// TODO Improve to rewrite only the second line
 			updateLoadAverage()
 			screenIntervalId = setInterval(updateLoadAverage, 1000)
 		},
 		function() {
+			// TODO Improve to rewrite only the second line
 			updateSysTemp()
 			screenIntervalId = setInterval(updateSysTemp, 1000)
 		},
@@ -203,6 +205,7 @@ var newBeacon = function(){
 		"minor": "",
 		"initialDate": Date.now(),
 		"finalDate": "",
+		"total": "",
 		"funcInterval": ""
 	}
 	return newB
@@ -216,6 +219,10 @@ var beaconTimeoutCallback = function(beacon) {
 	if (index > -1) {
 		beaconsOnRange.splice(index, 1)
 	}
+	
+	beacon.total = (beacon.finalDate - beacon.initialDate) / 1000
+	
+	console.log(beacon)
 	
 	// TODO - ADD TO DATABASE
 	
