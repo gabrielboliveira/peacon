@@ -70,7 +70,7 @@ var updateSysTemp = function() {
 			console.log('exec error: ' + error)
 		} else {
 			// gets cpu temp and sends to callback function
-			var temp = parseFloat(stdout)/1000
+			var temp = parseFloat(stdout) / 1000
 			updateDisplayMsg("CPU Temp\n" + temp)
 		}
 	})
@@ -110,7 +110,7 @@ var changeScreen = function(opts) {
 	
 	if(actualScreenX < 0)
 	{
-		actualScreenX = updateScreen.length
+		actualScreenX = updateScreen.length - 1
 	} 
 	else if(actualScreenX >= updateScreen.length)
 	{
@@ -118,7 +118,7 @@ var changeScreen = function(opts) {
 	}
 	if(actualScreenY < 0)
 	{
-		actualScreenY = updateScreen[actualScreenX].length
+		actualScreenY = updateScreen[actualScreenX].length - 1
 	} 
 	else if(actualScreenY >= updateScreen[actualScreenX].length)
 	{
