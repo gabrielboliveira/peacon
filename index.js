@@ -206,6 +206,7 @@ var newBeacon = function(){
 		"uuid": "",
 		"major": "",
 		"minor": "",
+		"name": "",
 		"initialDate": Date.now(),
 		"finalDate": "",
 		"funcTimeout": ""
@@ -248,8 +249,13 @@ Bleacon.on('discover', function(bleacon) {
 		findB.uuid = bleacon.uuid
 		findB.major = bleacon.major
 		findB.minor = bleacon.minor
+		PeaconDB.searchSavedBeacon(bleacon, function(err, beaconFound){
+			if(!err)
+				console.log(beaconFound)
+			else
+				console.log('Beacon not found')
+		})
 		beaconsOnRange.push(findB)
-		console.log("Not found, created and added a new")
 	}
 	
 	// stops the older timeout
