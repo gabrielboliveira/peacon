@@ -7,6 +7,7 @@ var numeral = require('numeral')
 var exec = require('child_process').exec
 var isOnline = require('is-online')
 var Bleacon = require('bleacon')
+var PeaconDB = require('peacon-db')
 
 var events = require("events"),
 	displayEvents = new events.EventEmitter()
@@ -228,7 +229,7 @@ var beaconTimeoutCallback = function(beacon) {
 		"total": ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
 	}
 	
-	// TODO - ADD TO DATABASE
+	PeaconDB.saveBeaconFound(beaconToSaveDB)
 	
 	// TODO - SHOW ON SCREEN
 	
@@ -299,6 +300,8 @@ var start = function() {
 	setInterval(checkInternet, 60000)
 	
 	Bleacon.startScanning() // scan for any bleacons
+	
+	PeaconDB.startDB() // start all databases
 }
 
 start()
