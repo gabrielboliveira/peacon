@@ -53,7 +53,7 @@ var updateScreen = [
 			updateDisplayMsg("IP Publico\nCarregando...")
 			publicIp(function (err, ip) {
 				if(!ip)
-					updateDisplayMsg("IP Publico\nnão encontrado")
+					updateDisplayMsg("IP Publico\nnao encontrado")
 				else
 					updateDisplayMsg("IP Publico\n" + ip)
 			})
