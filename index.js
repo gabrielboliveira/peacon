@@ -15,6 +15,9 @@ var events = require("events"),
 var actualScreenX = 0, actualScreenY = 0
 var screenIntervalId
 
+var beaconHistory = []
+var beaconHistoryCount = 0
+
 // ----------------------------------------------------------------
 // GET SCREEN TEXT
 // ----------------------------------------------------------------
@@ -30,7 +33,12 @@ var updateScreen = [
 		// this screen will show the last seen beacons
 		function() {
 			// TODO list last beacons
-			updateDisplayMsg("Ultimos beacons")
+			if(beaconHistoryCount == 0)
+				updateDisplayMsg("Nenhum beacon\nencontrado")
+			else if(beaconHistoryCount == 1)
+				updateDisplayMsg("1 beacon\nencontrado")
+			else
+				updateDisplayMsg(beaconHistoryCount + " beacons\nencontrados")
 		}
 	],
 	[
@@ -232,6 +240,27 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	PeaconDB.saveBeaconFound(beaconToSaveDB)
 	
+	/*var beaconToSaveHistory = {
+		"uuid": beacon.uuid,
+		"major": beacon.major,
+		"minor": beacon.minor,
+		"name": beacon.name
+	}
+	
+	beaconHistory.push(beaconToSaveHistory)*/
+	
+	beaconHistoryCount++
+	
+	var currentBeacon = beaconHistoryCount
+	
+	updateScreen[1].push(function(){
+		
+		if(!beacon.name)
+			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
+		else
+			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\n" + beacon.name)
+	})
+	
 	// TODO - SHOW ON SCREEN
 	
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
@@ -250,10 +279,7 @@ Bleacon.on('discover', function(bleacon) {
 		findB.major = bleacon.major
 		findB.minor = bleacon.minor
 		PeaconDB.searchSavedBeacon(bleacon, function(err, beaconFound){
-			if(!err)
-				console.log(beaconFound)
-			else
-				console.log('Beacon not found')
+			findB.name = beaconFound
 		})
 		beaconsOnRange.push(findB)
 	}
