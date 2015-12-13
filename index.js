@@ -7,7 +7,7 @@ var numeral = require('numeral')
 var exec = require('child_process').exec
 var isOnline = require('is-online')
 var Bleacon = require('bleacon')
-var PeaconDB = require('peacon-db')
+var PeaconDB = require('./lib/peacon-db')
 
 var events = require("events"),
 	displayEvents = new events.EventEmitter()
