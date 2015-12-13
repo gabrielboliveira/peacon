@@ -183,7 +183,7 @@ var checkInternet = function(){
 var beaconsOnRange = [ ]
 
 // time between beacon range in and out - in ms
-var beaconTime = 5000
+var beaconTime = 3000
 
 // find a beacon at the original array
 var findBeaconLocally = function(uuid, major, minor) {
@@ -205,8 +205,7 @@ var newBeacon = function(){
 		"minor": "",
 		"initialDate": Date.now(),
 		"finalDate": "",
-		"total": "",
-		"funcInterval": ""
+		"funcTimeout": ""
 	}
 	return newB
 }
@@ -220,9 +219,12 @@ var beaconTimeoutCallback = function(beacon) {
 		beaconsOnRange.splice(index, 1)
 	}
 	
-	beacon.total = ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
-	
-	console.log(beacon)
+	var beaconToSaveDB = {
+		"uuid": beacon.uuid,
+		"major": beacon.major,
+		"minor": beacon.minor,
+		"total": ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
+	}
 	
 	// TODO - ADD TO DATABASE
 	
@@ -248,9 +250,9 @@ Bleacon.on('discover', function(bleacon) {
 	}
 	
 	// stops the older timeout
-	clearTimeout(findB.funcInterval)
+	clearTimeout(findB.funcTimeout)
 	
-	findB.funcInterval = setTimeout(function() {
+	findB.funcTimeout = setTimeout(function() {
 		console.log("beaconTimeoutCallback")
 		beaconTimeoutCallback(findB)
 	}, beaconTime)

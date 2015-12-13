@@ -23,6 +23,7 @@
     "internal-ip": "^1.1.0",
     "is-online": "^5.0.1",
     "lcd": "^1.1.1",
+    "nano": "^6.1.5",
     "node-constants": "0.0.2",
     "numeral": "^1.5.3",
     "onoff": "^1.0.2",
