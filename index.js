@@ -22,7 +22,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			updateDisplayMsg("Aguardando\n beacons...")
+			updateDisplayMsg("Aguardando\nbeacons...")
 		}
 	],
 	[
@@ -52,8 +52,10 @@ var updateScreen = [
 		function() {
 			updateDisplayMsg("IP Publico\nCarregando...")
 			publicIp(function (err, ip) {
-				//displayEvents.emit('updated', "IP Publico\n" + ip)
-				updateDisplayMsg("IP Publico\n" + ip)
+				if(!ip)
+					updateDisplayMsg("IP Publico\nnão encontrado")
+				else
+					updateDisplayMsg("IP Publico\n" + ip)
 			})
 		}
 	]
