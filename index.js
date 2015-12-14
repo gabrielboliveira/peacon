@@ -329,6 +329,14 @@ var start = function() {
 	changeScreen()
 	//displayEvents.emit('changed')
 	
+	// restarting hci0
+	// this is a bug from my cheap ORICO BTA adapter
+	run_cmd( "sudo hciconfig hci0 down", [], function(text) { 
+		run_cmd( "sudo hciconfig hci0 up", [], function(text) { 
+			
+		})
+	})
+	
 	// check internet connectivity every minute
 	checkInternet()
 	setInterval(checkInternet, 60000)
@@ -342,3 +350,15 @@ start()
 // ----------------------------------------------------------------
 // END STARTING SCRIPTS
 // ----------------------------------------------------------------
+
+
+// run shell command
+// got from http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
+var run_cmd = function (cmd, args, callBack) {
+    var spawn = require('child_process').spawn
+    var child = spawn(cmd, args)
+    var resp = ""
+
+    child.stdout.on('data', function (buffer) { resp += buffer.toString() })
+    child.stdout.on('end', function() { callBack (resp) })
+}
