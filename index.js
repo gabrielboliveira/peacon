@@ -254,7 +254,6 @@ var beaconTimeoutCallback = function(beacon) {
 	var currentBeacon = beaconHistoryCount
 	
 	updateScreen[1].push(function(){
-		
 		if(!beacon.name)
 			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
 		else
@@ -279,7 +278,7 @@ Bleacon.on('discover', function(bleacon) {
 		findB.major = bleacon.major
 		findB.minor = bleacon.minor
 		PeaconDB.searchSavedBeacon(bleacon, function(err, beaconFound){
-			findB.name = beaconFound
+			findB.name = beaconFound.name
 		})
 		beaconsOnRange.push(findB)
 	}
