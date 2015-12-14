@@ -306,7 +306,16 @@ Bleacon.on('discover', function(bleacon) {
 // END BEACON IDENTIFICATION
 // ----------------------------------------------------------------
 
+// run shell command
+// got from http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
+var run_cmd = function (cmd, args, callBack) {
+    var spawn = require('child_process').spawn
+    var child = spawn(cmd, args)
+    var resp = ""
 
+    child.stdout.on('data', function (buffer) { resp += buffer.toString() })
+    child.stdout.on('end', function() { callBack (resp) })
+}
 
 // ----------------------------------------------------------------
 // STARTING SCRIPTS
@@ -350,15 +359,3 @@ start()
 // ----------------------------------------------------------------
 // END STARTING SCRIPTS
 // ----------------------------------------------------------------
-
-
-// run shell command
-// got from http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
-var run_cmd = function (cmd, args, callBack) {
-    var spawn = require('child_process').spawn
-    var child = spawn(cmd, args)
-    var resp = ""
-
-    child.stdout.on('data', function (buffer) { resp += buffer.toString() })
-    child.stdout.on('end', function() { callBack (resp) })
-}
