@@ -89,6 +89,19 @@ var updateSysTemp = function() {
 	})
 }
 
+displayEvents.on("beacon-range-change", function(){
+	
+	if( (actualScreenX ==  0) && (actualScreenY == 0) ) {
+		if(beaconsOnRange.length == 0)
+			updateDisplayMsg("Aguardando\nbeacons...")
+		else if(beaconsOnRange.length == 1)
+			updateDisplayMsg("1 beacon\nencontrado...")
+		else
+			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados...")
+	}
+	
+})
+
 var updateDisplayMsg = function(message) {
 	bpiscreen.write.lcd(message)
 }
@@ -231,6 +244,8 @@ var beaconTimeoutCallback = function(beacon) {
 		beaconsOnRange.splice(index, 1)
 	}
 	
+	displayEvents.emit("beacon-range-change")
+	
 	var beaconToSaveDB = {
 		"uuid": beacon.uuid,
 		"major": beacon.major,
@@ -284,6 +299,7 @@ Bleacon.on('discover', function(bleacon) {
 				findB.name = beaconFound.name
 		})
 		beaconsOnRange.push(findB)
+		displayEvents.emit("beacon-range-change")
 	}
 	
 	// stops the older timeout
