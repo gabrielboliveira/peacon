@@ -26,7 +26,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			updateDisplayMsg("Aguardando\nbeacons...")
+			updateDisplayMsg("Aguardando\nbeacons")
 		}
 	],
 	[
@@ -34,11 +34,11 @@ var updateScreen = [
 		function() {
 			// TODO list last beacons
 			if(beaconHistoryCount == 0)
-				updateDisplayMsg("Nenhum beacon\nencontrado")
+				updateDisplayMsg("Nenhum beacon\nno historico")
 			else if(beaconHistoryCount == 1)
-				updateDisplayMsg("1 beacon\nencontrado")
+				updateDisplayMsg("1 beacon\nno historico")
 			else
-				updateDisplayMsg(beaconHistoryCount + " beacons\nencontrados")
+				updateDisplayMsg(beaconHistoryCount + " beacons\nno historico")
 		}
 	],
 	[
@@ -93,11 +93,11 @@ displayEvents.on("beacon-range-change", function(){
 	
 	if( (actualScreenX ==  0) && (actualScreenY == 0) ) {
 		if(beaconsOnRange.length == 0)
-			updateDisplayMsg("Aguardando\nbeacons...")
+			updateDisplayMsg("Aguardando\nbeacons")
 		else if(beaconsOnRange.length == 1)
-			updateDisplayMsg("1 beacon\nencontrado...")
+			updateDisplayMsg("1 beacon\nencontrado")
 		else
-			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados...")
+			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
 	}
 	
 })
