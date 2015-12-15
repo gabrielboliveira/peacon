@@ -293,7 +293,7 @@ Bleacon.on('discover', function(bleacon) {
 		findB.major = bleacon.major
 		findB.minor = bleacon.minor
 		PeaconDB.searchSavedBeacon(bleacon, function(err, beaconFound){
-			if(!beaconFound.name)
+			if(!beaconFound)
 				findB.name = null
 			else
 				findB.name = beaconFound.name
@@ -321,8 +321,6 @@ Bleacon.on('discover', function(bleacon) {
 // ----------------------------------------------------------------
 // END BEACON IDENTIFICATION
 // ----------------------------------------------------------------
-
-
 
 // ----------------------------------------------------------------
 // STARTING SCRIPTS
