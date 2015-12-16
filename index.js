@@ -242,9 +242,11 @@ var newBeacon = function(){
 
 // timeout callback to remove a beacon from the range array
 var beaconTimeoutCallback = function(beacon) {
-	beacon.finalDate = Date.now()
+	
+	var totalTime = ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
 	
 	var index = beaconsOnRange.indexOf(beacon)
+	
 	if (index > -1) {
 		beaconsOnRange.splice(index, 1)
 	}
@@ -255,26 +257,33 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	displayEvents.emit("beacon-range-change")
 	
-	var beaconToSaveDB = {
-		"uuid": beacon.uuid,
-		"major": beacon.major,
-		"minor": beacon.minor,
-		"initialDate": beacon.initialDate,
-		"total": ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
+	if(totalTime > 1) {
+		beacon.finalDate = Date.now()
+		
+
+		
+		var beaconToSaveDB = {
+			"uuid": beacon.uuid,
+			"major": beacon.major,
+			"minor": beacon.minor,
+			"initialDate": beacon.initialDate,
+			"total": totalTime
+		}
+		
+		PeaconDB.saveBeaconFound(beaconToSaveDB)
+		
+		beaconHistoryCount++
+		
+		var currentBeacon = beaconHistoryCount
+		
+		updateScreen[1].push(function(){
+			if(!beacon.name)
+				updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
+			else
+				updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\n" + beacon.name)
+		})
 	}
 	
-	PeaconDB.saveBeaconFound(beaconToSaveDB)
-	
-	beaconHistoryCount++
-	
-	var currentBeacon = beaconHistoryCount
-	
-	updateScreen[1].push(function(){
-		if(!beacon.name)
-			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
-		else
-			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\n" + beacon.name)
-	})
 
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
 }
