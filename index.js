@@ -26,7 +26,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			updateBeaconsFound()
+			firstScreenBeaconRange()
 		}
 	],
 	[
@@ -100,14 +100,18 @@ var updateBeaconsFound = function() {
 	}
 }
 
+var firstScreenBeaconRange = function() {
+	if(beaconsOnRange.length == 0)
+		updateDisplayMsg("Aguardando\nbeacons")
+	else if(beaconsOnRange.length == 1)
+		updateDisplayMsg("1 beacon\nencontrado")
+	else
+		updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
+}
+
 var createBeaconRangeScreen = function() {
 	updateScreen[0] = [ function() {
-		if(beaconsOnRange.length == 0)
-			updateDisplayMsg("Aguardando\nbeacons")
-		else if(beaconsOnRange.length == 1)
-			updateDisplayMsg("1 beacon\nencontrado")
-		else
-			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
+		firstScreenBeaconRange()
 	}]
 	var i = 0, len = beaconsOnRange.length
 	for(; i < len; i++){
