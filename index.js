@@ -243,6 +243,8 @@ var newBeacon = function(){
 // timeout callback to remove a beacon from the range array
 var beaconTimeoutCallback = function(beacon) {
 	
+	beacon.finalDate = Date.now()
+	
 	var totalTime = ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
 	
 	var index = beaconsOnRange.indexOf(beacon)
@@ -257,10 +259,8 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	displayEvents.emit("beacon-range-change")
 	
+	// ignore the beacon if the range time is less than 1 second
 	if(totalTime > 1) {
-		beacon.finalDate = Date.now()
-		
-
 		
 		var beaconToSaveDB = {
 			"uuid": beacon.uuid,
@@ -283,7 +283,6 @@ var beaconTimeoutCallback = function(beacon) {
 				updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\n" + beacon.name)
 		})
 	}
-	
 
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
 }
