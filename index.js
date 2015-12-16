@@ -26,7 +26,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			firstScreenBeaconRange()
+			updateBeaconsFound()
 		}
 	],
 	[
@@ -90,34 +90,13 @@ var updateSysTemp = function() {
 }
 
 var updateBeaconsFound = function() {
-	if ( actualScreenX ==  0 ) {
-		createBeaconRangeScreen()
-		updateScreen[actualScreenX][actualScreenY]()
-	}
-}
-
-var firstScreenBeaconRange = function() {
-	if(beaconsOnRange.length == 0)
-		updateDisplayMsg("Aguardando\nbeacons")
-	else if(beaconsOnRange.length == 1)
-		updateDisplayMsg("1 beacon\nencontrado")
-	else
-		updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
-}
-
-var createBeaconRangeScreen = function() {
-	updateScreen[0] = [ function() {
-		firstScreenBeaconRange()
-	}]
-	var i = 0, len = beaconsOnRange.length
-	for(; i < len; i++){
-		beaconsOnRange[i].screenIndex = i + 1
-		updateScreen[0].push(function(){
-			if(!beaconsOnRange[i].name)
-				updateDisplayMsg((i + 1).toString() + " - Desconhecido")
-			else
-				updateDisplayMsg( (i + 1).toString() + " - "+ beaconsOnRange[i].name)
-		})
+	if( (actualScreenX ==  0) && (actualScreenY == 0) ) {
+		if(beaconsOnRange.length == 0)
+			updateDisplayMsg("Aguardando\nbeacons")
+		else if(beaconsOnRange.length == 1)
+			updateDisplayMsg("1 beacon\nencontrado")
+		else
+			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
 	}
 }
 
@@ -285,8 +264,6 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	var currentBeacon = beaconHistoryCount
 	
-	createBeaconRangeScreen()
-	
 	updateScreen[1].push(function(){
 		if(!beacon.name)
 			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
@@ -315,6 +292,12 @@ Bleacon.on('discover', function(bleacon) {
 		})
 		findB.screenIndex = updateScreen[0].length
 		beaconsOnRange.push(findB)
+		updateScreen[0].push(function(){
+			if(!findB.name)
+				updateDisplayMsg("Desconhecido")
+			else
+				updateDisplayMsg(findB.name)
+		})
 		displayEvents.emit("beacon-range-change")
 	}
 	
