@@ -91,12 +91,8 @@ var updateSysTemp = function() {
 
 var updateBeaconsFound = function() {
 	if ( actualScreenX ==  0 ) {
-		if (actualScreenY == 0) {
-			updateScreen[0][0]()
-		} else {
-			createBeaconRangeScreen()
-			updateScreen[0][actualScreenY]()
-		}
+		createBeaconRangeScreen()
+		updateScreen[actualScreenX][actualScreenY]()
 	}
 }
 
