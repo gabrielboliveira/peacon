@@ -98,6 +98,8 @@ var updateBeaconsFound = function() {
 		else
 			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
 	} else if(beaconsOnRange.length == 0) {
+		actualScreenX = 0
+		actualScreenY = 0
 		updateDisplayMsg("Aguardando\nbeacons")
 	}
 }
