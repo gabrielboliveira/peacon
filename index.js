@@ -259,6 +259,7 @@ var beaconTimeoutCallback = function(beacon) {
 		"uuid": beacon.uuid,
 		"major": beacon.major,
 		"minor": beacon.minor,
+		"initialDate": beacon.initialDate,
 		"total": ( (beacon.finalDate - beacon.initialDate - beaconTime) / 1000 )
 	}
 	
