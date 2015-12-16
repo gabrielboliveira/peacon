@@ -230,7 +230,8 @@ var newBeacon = function(){
 		"name": "",
 		"initialDate": Date.now(),
 		"finalDate": "",
-		"funcTimeout": ""
+		"funcTimeout": "",
+		"screenIndex": ""
 	}
 	return newB
 }
@@ -255,15 +256,6 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	PeaconDB.saveBeaconFound(beaconToSaveDB)
 	
-	/*var beaconToSaveHistory = {
-		"uuid": beacon.uuid,
-		"major": beacon.major,
-		"minor": beacon.minor,
-		"name": beacon.name
-	}
-	
-	beaconHistory.push(beaconToSaveHistory)*/
-	
 	beaconHistoryCount++
 	
 	var currentBeacon = beaconHistoryCount
@@ -274,9 +266,7 @@ var beaconTimeoutCallback = function(beacon) {
 		else
 			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\n" + beacon.name)
 	})
-	
-	// TODO - SHOW ON SCREEN
-	
+
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
 }
 
@@ -298,7 +288,14 @@ Bleacon.on('discover', function(bleacon) {
 			else
 				findB.name = beaconFound.name
 		})
+		findB.screenIndex = updateScreen[0].length
 		beaconsOnRange.push(findB)
+		updateScreen[0].push(function(){
+			if(!findB.name)
+				updateDisplayMsg("Desconhecido")
+			else
+				updateDisplayMsg(findB.name)
+		})
 		displayEvents.emit("beacon-range-change")
 	}
 	
