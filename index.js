@@ -245,6 +245,10 @@ var beaconTimeoutCallback = function(beacon) {
 		beaconsOnRange.splice(index, 1)
 	}
 	
+	if (beacon.screenIndex > -1) {
+		updateScreen[0].splice(beacon.screenIndex, 1)
+	}
+	
 	displayEvents.emit("beacon-range-change")
 	
 	var beaconToSaveDB = {
