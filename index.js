@@ -90,13 +90,34 @@ var updateSysTemp = function() {
 }
 
 var updateBeaconsFound = function() {
-	if( (actualScreenX ==  0) && (actualScreenY == 0) ) {
+	if ( actualScreenX ==  0 ) {
+		if (actualScreenY == 0) {
+			updateScreen[0][0]()
+		} else {
+			createBeaconRangeScreen()
+			updateScreen[0][actualScreenY]()
+		}
+	}
+}
+
+var createBeaconRangeScreen = function() {
+	updateScreen[0] = [ function() {
 		if(beaconsOnRange.length == 0)
 			updateDisplayMsg("Aguardando\nbeacons")
 		else if(beaconsOnRange.length == 1)
 			updateDisplayMsg("1 beacon\nencontrado")
 		else
 			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
+	}]
+	var i = 0, len = beaconsOnRange.length
+	for(; i < len; i++){
+		beaconsOnRange[i].screenIndex = i + 1
+		updateScreen[0].push(function(){
+			if(!beaconsOnRange[i].name)
+				updateDisplayMsg((i + 1).toString() + " - Desconhecido")
+			else
+				updateDisplayMsg( (i + 1).toString() + " - "+ beaconsOnRange[i].name)
+		})
 	}
 }
 
@@ -264,6 +285,8 @@ var beaconTimeoutCallback = function(beacon) {
 	
 	var currentBeacon = beaconHistoryCount
 	
+	createBeaconRangeScreen()
+	
 	updateScreen[1].push(function(){
 		if(!beacon.name)
 			updateDisplayMsg(currentBeacon + " de " + beaconHistoryCount + "\nDesconhecido")
@@ -276,8 +299,6 @@ var beaconTimeoutCallback = function(beacon) {
 
 // callback when a beacon is discovered
 Bleacon.on('discover', function(bleacon) {
-	
-	console.log("Bleacon Discover")
 	
 	var findB = findBeaconLocally(bleacon.uuid, bleacon.major, bleacon.minor)
 	
@@ -294,12 +315,6 @@ Bleacon.on('discover', function(bleacon) {
 		})
 		findB.screenIndex = updateScreen[0].length
 		beaconsOnRange.push(findB)
-		updateScreen[0].push(function(){
-			if(!findB.name)
-				updateDisplayMsg("Desconhecido")
-			else
-				updateDisplayMsg(findB.name)
-		})
 		displayEvents.emit("beacon-range-change")
 	}
 	
@@ -307,15 +322,8 @@ Bleacon.on('discover', function(bleacon) {
 	clearTimeout(findB.funcTimeout)
 	
 	findB.funcTimeout = setTimeout(function() {
-		console.log("beaconTimeoutCallback")
 		beaconTimeoutCallback(findB)
 	}, beaconTime)
-	
-    /*console.log("UUID: " + bleacon.uuid + " " +
-		"Major: " + bleacon.major + " " +
-		"Minor: " + bleacon.minor + " " +
-		"RSSI: " + bleacon.rssi + " " +
-		"Power: " + bleacon.measuredPower)*/
 		
 	bpiscreen.write.led(config.BEACONLED, Number(beaconsOnRange.length > 0))
 })
