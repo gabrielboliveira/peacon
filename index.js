@@ -26,7 +26,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			updateDisplayMsg("Aguardando\nbeacons")
+			updateBeaconsFound
 		}
 	],
 	[
@@ -89,8 +89,7 @@ var updateSysTemp = function() {
 	})
 }
 
-displayEvents.on("beacon-range-change", function(){
-	
+var updateBeaconsFound = function() {
 	if( (actualScreenX ==  0) && (actualScreenY == 0) ) {
 		if(beaconsOnRange.length == 0)
 			updateDisplayMsg("Aguardando\nbeacons")
@@ -99,8 +98,9 @@ displayEvents.on("beacon-range-change", function(){
 		else
 			updateDisplayMsg(beaconsOnRange.length + " beacons\nencontrados")
 	}
-	
-})
+}
+
+displayEvents.on("beacon-range-change", updateBeaconsFound)
 
 var updateDisplayMsg = function(message) {
 	bpiscreen.write.lcd(message)
