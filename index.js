@@ -26,7 +26,7 @@ var updateScreen = [
 	[
 		// first screen, show simple message
 		function() {
-			updateBeaconsFound
+			updateBeaconsFound()
 		}
 	],
 	[
