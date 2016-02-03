@@ -380,7 +380,7 @@ function exitHandler(options, err) {
 	bpiscreen.write.led(config.INTERFACELED2, 0)
 	bpiscreen.write.led(config.INTERFACELED3, 0)	
 
-	updateDisplayMsg("Programa\nFechado")
+	updateDisplayMsg("Programa\nParado")
 }
 
 //do something when app is closing
