@@ -258,6 +258,8 @@ var beaconTimeoutCallback = function(beacon) {
 	}
 	
 	displayEvents.emit("beacon-range-change")
+
+	console.log(totalTime)
 	
 	// ignore the beacon if the range time is less than 1 second
 	if(totalTime > 1) {
@@ -360,4 +362,35 @@ var start = function() {
 start()
 // ----------------------------------------------------------------
 // END STARTING SCRIPTS
+// ----------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------
+// CLOSING SCRIPTS
+// ----------------------------------------------------------------
+process.stdin.resume();//so the program will not close instantly
+
+function exitHandler(options, err) {
+	bpiscreen.write.led(config.POWERLED, 0)
+	bpiscreen.write.led(config.INTERNETLED, 0)
+	bpiscreen.write.led(config.BEACONLED, 0)
+
+	bpiscreen.write.led(config.INTERFACELED1, 0)
+	bpiscreen.write.led(config.INTERFACELED2, 0)
+	bpiscreen.write.led(config.INTERFACELED3, 0)	
+
+	updateDisplayMsg("Programa\nFechado")
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+// ----------------------------------------------------------------
+// END CLOSING SCRIPTS
 // ----------------------------------------------------------------
