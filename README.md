@@ -6,7 +6,9 @@ This is [Gabriel Oliveira's](https://github.com/gabrielboliveira) term paper, pr
 
 ## Hardware
 
-It uses a 16x2 LCD display, 3 push buttons and 6 LEDs to show simple information.
+It uses a 16x2 LCD display, 3 push buttons and 6 LEDs to show simple information. This is the case I created:
+
+![Image of the case](https://cloud.githubusercontent.com/assets/11093090/12798853/dc48c434-cab2-11e5-943c-23bf6f6e929e.jpg)
 
 ## License
 
